@@ -9,7 +9,7 @@
     <meta name="author" content="senro"/>
     <link rel="stylesheet" type="text/css" href="http://static.woniu.com/stylesheets/base.css"/>
     __COMPONENTS_CSS__
-    <link rel="stylesheet" type="text/css" href="static/index/index.css"/>
+    <link rel="stylesheet" type="text/css" href="../static/index/index.css"/>
 </head>
 
 <body>

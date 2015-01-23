@@ -381,7 +381,7 @@ var bulidSnailfwd = function(ret, conf, settings, opt){
         template.pkg.css.path=fis.config.get('release')+'static/pkg/'+templateFileName+'_components.css';
         template.pkg.js.path=fis.config.get('release')+'static/pkg/'+templateFileName+'_components.js';
 
-        fis.util.write(opt.dest+template.pkg.css.path, getFilesContents(template.css,translateCssRelativePathToAbsolute));
+        fis.util.write(opt.dest+template.pkg.css.path, getFilesContents(template.css,[translateCssRelativePathToAbsolute]));
         fis.util.write(opt.dest+template.pkg.js.path, getFilesContents(template.js));
 
         for(var i=0;i<template.deps.length;i++){
@@ -518,18 +518,31 @@ var bulidSnailfwd = function(ret, conf, settings, opt){
         }
         return typeRequireUris;
     }
-    function getFilesContents(uriArray){
+    function getFilesContents(uriArray,compileArray){
         //返回该路径数组的所有内容字符串
 
         if(typeof uriArray == 'string'){
             uriArray=[uriArray];
         }
 
-        var str='';
+        var str='',
+            compiledStr='';
         for(var i=0;i<uriArray.length;i++){
             var uri=uriArray[i];
             if(ret.ids[uri]){
-                str+=ret.ids[uri]._content+'\r\n';
+                if(compileArray){
+                    if(typeof compileArray == 'function'){
+                        compileArray=[compileArray];
+                    }
+                    for(var j=0;j<compileArray.length;j++){
+                        var compile=compileArray[j];
+                        compiledStr=compile(ret.ids[uri]._content,uri);
+                    }
+                    str+=compiledStr+'\r\n';
+                }else{
+                    str+=ret.ids[uri]._content+'\r\n';
+                }
+
             }else{
                 console.log('can\'t find :'+uri+' object in ret.ids!');
             }
@@ -540,7 +553,27 @@ var bulidSnailfwd = function(ret, conf, settings, opt){
     }
     function translateCssRelativePathToAbsolute(content,uri){
         //var absolutePath=uri.replace(//g,'');
-        return content.replace(/url\(\'\.\/(.)*\'\)/g,'');
+        var uriObj=parsePath(uri);
+        //console.log('content:'+content);
+        return content.replace(/\.\//g,fis.config.get('release')+'c/'+uriObj.dir);
+    }
+    function parsePath(path){
+        var path=normalizePath(path),
+            pathArr=path.split('/'),
+            pathObj={dir:'',fileName:'',extName:''};
+
+        for(var i= 0,L=pathArr.length;i<L;i++){
+            if(i<L-1){
+                pathObj.dir+=pathArr[i]+'/';
+            }else{
+                pathObj.fileName=pathArr[i].split('.')[0];
+                pathObj.extName=pathArr[i].split('.')[1];
+            }
+        }
+        function normalizePath(path){
+            return path.replace(/\\/g,'/');
+        }
+        return pathObj;
     }
     //console.log(JSON.stringify(uris, null, opt.optimize ? null : 4));
     //获取依赖数组，根据文件类型分成css和js，然后根据引用模板名进行分别打包，把css包插入到__COMPONENT_CSS__，把js包插入到__COMPONENT_JS__

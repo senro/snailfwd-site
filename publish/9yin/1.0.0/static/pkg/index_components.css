@@ -1,5 +1,7 @@
 .menu1{
-    background: url(__inline('navbg.png'));
+	width: 1024px;
+	height:768px;
+    background: url('/9yin/1.0.0/c/menu1/0.0.1/navbg.jpg');
 }
 .menu1-btn{}
 .menu1-btn1{}
