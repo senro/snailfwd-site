@@ -1,0 +1,1 @@
+tree /F d:senro\senro\git\personal\snail > d:senro\senro\git\personal\snail\dirtree.txt

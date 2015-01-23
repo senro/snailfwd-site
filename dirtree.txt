@@ -1,0 +1,71 @@
+卷 软件 的文件夹 PATH 列表
+卷序列号为 000B-197A
+D:\SENRO\SENRO\GIT\PERSONAL\SNAIL
+│  .gitignore
+│  dirtree.txt
+│  index.html
+│  main.html
+│  README.md
+│  
+├─.idea
+│  │  .name
+│  │  cssxfire.xml
+│  │  encodings.xml
+│  │  misc.xml
+│  │  modules.xml
+│  │  snail.iml
+│  │  vcs.xml
+│  │  workspace.xml
+│  │  
+│  └─scopes
+│          scope_settings.xml
+│          
+├─c
+│  ├─index
+│  │  └─1.0.0
+│  │          index.html
+│  │          
+│  ├─menu
+│  │  └─1.0.0
+│  │          menu.html
+│  │          navbg.png
+│  │          
+│  └─reg
+│      └─1.0.0
+│              reg.html
+│              
+├─c_r
+│  ├─jquery
+│  │  └─1.0.0
+│  │          jquery.js
+│  │          
+│  └─register
+│      └─1.0.0
+│              register.js
+│              
+└─publish
+    │  index.html
+    │  
+    ├─c
+    │  ├─menu
+    │  │  └─1.0.0
+    │  │          menu.css
+    │  │          menu.html
+    │  │          menu.js
+    │  │          navbg.png
+    │  │          
+    │  └─reg
+    │      └─1.0.0
+    │              reg.css
+    │              reg.html
+    │              reg.js
+    │              
+    └─c_r
+        ├─jquery
+        │  └─1.0.0
+        │          jquery.js
+        │          
+        └─register
+            └─1.0.0
+                    register.js
+                    
