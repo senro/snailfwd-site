@@ -19,7 +19,8 @@ fis.config.merge({
     modules : {
         parser : {
             md : 'marked',
-            tpl : 'component'
+            tpl : 'component',
+            css:'component'
         }
     }
 });
@@ -316,7 +317,6 @@ var bulidSnailfwd = function(ret, conf, settings, opt){
     fis.util.map(ret.src, function(subpath, file){
         fileStr+=JSON.stringify(file, null, opt.optimize ? null : 4);
         if(file.requireComponents){
-            //如果此文件引用了某widget，则替换此文件的widget标签为那个组件的html，并且在全局的uri和has里插入相应的引用
             console.log(file.id+'  need:  '+file.requireComponents+'\n');
             map.templateDeps[file.id]={css:[],js:[],init:[],pkg:{css:{path:''},js:{path:''}}};
             map.templateDeps[file.id].deps=file.requireComponents.distinct();
@@ -329,6 +329,7 @@ var bulidSnailfwd = function(ret, conf, settings, opt){
             }
         }
     });
+
     /*
     * 4. 建立一个需打包的文件表pkgMap对象，记录每个tpl模板用到的组件的打包文件路径。
     * /
@@ -366,6 +367,7 @@ var bulidSnailfwd = function(ret, conf, settings, opt){
             }
         }
     }
+    console.log(stringObj(map));
     /*
     * 5.根据pkgMap找到每个模板对应的资源包，然后把所有引用样式写到/static/pkg/模板名_ components.css下，
     * 此处应留一个插件接口，可以对打包的组件css进行一些个性化处理和并校正样式里的相对路径资源引用为绝对路径，相对于tpl结构。
@@ -378,22 +380,44 @@ var bulidSnailfwd = function(ret, conf, settings, opt){
     for(var templateName in map.templateDeps){
         var template=map.templateDeps[templateName],
             templateFileName=templateName.split('/')[1].split('.')[0];
+        //设置js和css打包文件路径
         template.pkg.css.path=fis.config.get('release')+'static/pkg/'+templateFileName+'_components.css';
         template.pkg.js.path=fis.config.get('release')+'static/pkg/'+templateFileName+'_components.js';
-
+        //写入打包文件到设置地址
         fis.util.write(opt.dest+template.pkg.css.path, getFilesContents(template.css,[translateCssRelativePathToAbsolute]));
         fis.util.write(opt.dest+template.pkg.js.path, getFilesContents(template.js));
-
+        //替换模板里的组件标签为对应的html结构
         for(var i=0;i<template.deps.length;i++){
             var component=template.deps[i];
-            ret.src['/'+templateName]._content=ret.src['/'+templateName]._content.replace(componentsReg(component),getFilesContents(map.components[component].html||[]));
+            if(ret.src['/'+templateName].ext=='.tpl'){
+                //如果该文件是tpl文件，则要替换组件名称为组件的html
+                ret.src['/'+templateName]._content=ret.src['/'+templateName]._content.replace(componentsReg(component),getFilesContents(map.components[component].html||[]));
+            }else if(ret.src['/'+templateName].rExt=='.css'){
+                //如果该文件渲染后缀是css文件，则要替换组件名称为组件的css
+                ret.src['/'+templateName]._content=ret.src['/'+templateName]._content.replace(componentsReg(component),getFilesContents(map.components[component].css||[]));
+            }
+
         }
-        ret.src['/'+templateName]._content=ret.src['/'+templateName]._content.replace(/__COMPONENTS_CSS__/g,'<link rel="stylesheet" type="text/css" href="'+template.pkg.css.path+'"/>');
-        ret.src['/'+templateName]._content=ret.src['/'+templateName]._content.replace(/__COMPONENTS_JS__/g,'<script type="text/javascript" src="'+template.pkg.js.path+'"></script>');
-        ret.src[template.mainJs]._content=ret.src[template.mainJs]._content.replace(/__COMPONENTS_INIT__/g,getFilesContents(template.init));
-        ret.src[template.mainJs]._content=ret.src[template.mainJs]._content.replace(/__COMPONENTS_ALIAS__/g,stringObj(map.alias));
+        if(ret.src['/'+templateName].ext=='.tpl'){
+            //只替换后缀是.tpl文件的__COMPONENTS_CSS__、__COMPONENTS_JS__、__COMPONENTS_INIT__、__COMPONENTS_ALIAS__为各自的引用和代码
+            ret.src['/'+templateName]._content=ret.src['/'+templateName]._content.replace(/__COMPONENTS_CSS__/g,'<link rel="stylesheet" type="text/css" href="'+template.pkg.css.path+'"/>');
+            ret.src['/'+templateName]._content=ret.src['/'+templateName]._content.replace(/__COMPONENTS_JS__/g,'<script type="text/javascript" src="'+template.pkg.js.path+'"></script>');
+            if(template.mainJs){
+                if(template.mainJs!='self'){
+                    ret.src[template.mainJs]._content=ret.src[template.mainJs]._content.replace(/__COMPONENTS_INIT__/g,getFilesContents(template.init));
+                    ret.src[template.mainJs]._content=ret.src[template.mainJs]._content.replace(/__COMPONENTS_ALIAS__/g,stringObj(map.alias));
+                }else{
+                    ret.src['/'+templateName]._content=ret.src[template.mainJs]._content.replace(/__COMPONENTS_INIT__/g,getFilesContents(template.init));
+                    ret.src['/'+templateName]._content=ret.src[template.mainJs]._content.replace(/__COMPONENTS_ALIAS__/g,stringObj(map.alias));
+                }
+            }else{
+                console.log('请设置该模板的mainJS，在入口script标签里加入data-main="true"属性即可！');
+            }
+
+        }
+
     }
-    console.log(stringObj(map));
+
     function componentsReg(name){
         switch (name){
             case '**':
@@ -409,7 +433,7 @@ var bulidSnailfwd = function(ret, conf, settings, opt){
 
         for(var i=0;i<arr.length;i++){
             var component=arr[i];
-            if(map.alias[component]){
+            if(map.componentsAlias[component]){
                 array.push(component);
             }
         }
@@ -578,16 +602,16 @@ var bulidSnailfwd = function(ret, conf, settings, opt){
     //console.log(JSON.stringify(uris, null, opt.optimize ? null : 4));
     //获取依赖数组，根据文件类型分成css和js，然后根据引用模板名进行分别打包，把css包插入到__COMPONENT_CSS__，把js包插入到__COMPONENT_JS__
 
-    fs.writeFile('D:/senro/senro/git/company/snailfwd-site/test/files.txt', fileStr, function (err) {
+    fs.writeFile(fis.project.getProjectPath()+'/test/files.txt', fileStr, function (err) {
         console.log('fileStr导出成功！');
     });
-    fs.writeFile('D:/senro/senro/git/company/snailfwd-site/test/retStr.txt', retStr, function (err) {
+    fs.writeFile(fis.project.getProjectPath()+'/test/retStr.txt', retStr, function (err) {
         console.log('retStr导出成功！');
     });
-    fs.writeFile('D:/senro/senro/git/company/snailfwd-site/test/confStr.txt', confStr, function (err) {
+    fs.writeFile(fis.project.getProjectPath()+'/test/confStr.txt', confStr, function (err) {
         console.log('confStr导出成功！');
     });
-    fs.writeFile('D:/senro/senro/git/company/snailfwd-site/test/settingsStr.txt', settingsStr, function (err) {
+    fs.writeFile(fis.project.getProjectPath()+'/test/settingsStr.txt', settingsStr, function (err) {
         console.log('settingsStr导出成功！');
     });
 //    fs.writeFile('D:/senro/senro/git/company/snailfwd-site/test/optStr.txt', optStr, function (err) {

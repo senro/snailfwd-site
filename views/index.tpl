@@ -13,6 +13,7 @@
 </head>
 
 <body>
+<!--component('menu3@0.0.1')-->
 <div class="bg">
     <div class="container">
         <div class="header">
