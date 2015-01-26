@@ -375,8 +375,6 @@ var bulidSnailfwd = function(ret, conf, settings, opt){
     * 的样式引用，替换__COMPONENTS_JS__为“/static/pkg/模板名_ components.js”的脚本引用，通过页面里带有data-main的脚本标签去
     * 寻找__COMPONENTS_INIT__标签，然后将其替换为所有模块的初始化代码，寻找__COMPONENTS_ALIAS__标签，然后将其替换为所有模块的别名对象。
     * */
-
-
     for(var templateName in map.templateDeps){
         var template=map.templateDeps[templateName],
             templateFileName=templateName.split('/')[1].split('.')[0];
