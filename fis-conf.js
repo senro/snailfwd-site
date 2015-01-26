@@ -367,7 +367,7 @@ var bulidSnailfwd = function(ret, conf, settings, opt){
             }
         }
     }
-    console.log(stringObj(map));
+    //console.log(stringObj(map));
     /*
     * 5.根据pkgMap找到每个模板对应的资源包，然后把所有引用样式写到/static/pkg/模板名_ components.css下，
     * 此处应留一个插件接口，可以对打包的组件css进行一些个性化处理和并校正样式里的相对路径资源引用为绝对路径，相对于tpl结构。
@@ -602,18 +602,18 @@ var bulidSnailfwd = function(ret, conf, settings, opt){
     //console.log(JSON.stringify(uris, null, opt.optimize ? null : 4));
     //获取依赖数组，根据文件类型分成css和js，然后根据引用模板名进行分别打包，把css包插入到__COMPONENT_CSS__，把js包插入到__COMPONENT_JS__
 
-    fs.writeFile(fis.project.getProjectPath()+'/test/files.txt', fileStr, function (err) {
-        console.log('fileStr导出成功！');
-    });
-    fs.writeFile(fis.project.getProjectPath()+'/test/retStr.txt', retStr, function (err) {
-        console.log('retStr导出成功！');
-    });
-    fs.writeFile(fis.project.getProjectPath()+'/test/confStr.txt', confStr, function (err) {
-        console.log('confStr导出成功！');
-    });
-    fs.writeFile(fis.project.getProjectPath()+'/test/settingsStr.txt', settingsStr, function (err) {
-        console.log('settingsStr导出成功！');
-    });
+//    fs.writeFile(fis.project.getProjectPath()+'/test/files.txt', fileStr, function (err) {
+//        console.log('fileStr导出成功！');
+//    });
+//    fs.writeFile(fis.project.getProjectPath()+'/test/retStr.txt', retStr, function (err) {
+//        console.log('retStr导出成功！');
+//    });
+//    fs.writeFile(fis.project.getProjectPath()+'/test/confStr.txt', confStr, function (err) {
+//        console.log('confStr导出成功！');
+//    });
+//    fs.writeFile(fis.project.getProjectPath()+'/test/settingsStr.txt', settingsStr, function (err) {
+//        console.log('settingsStr导出成功！');
+//    });
 //    fs.writeFile('D:/senro/senro/git/company/snailfwd-site/test/optStr.txt', optStr, function (err) {
 //        console.log('optStr导出成功！');
 //    });
