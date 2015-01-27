@@ -597,7 +597,7 @@ var bulidSnailfwd = function(ret, conf, settings, opt){
         }
         return pathObj;
     }
-    //console.log(JSON.stringify(uris, null, opt.optimize ? null : 4));
+
     //获取依赖数组，根据文件类型分成css和js，然后根据引用模板名进行分别打包，把css包插入到__COMPONENT_CSS__，把js包插入到__COMPONENT_JS__
 
 //    fs.writeFile(fis.project.getProjectPath()+'/test/files.txt', fileStr, function (err) {
