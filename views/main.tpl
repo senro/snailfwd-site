@@ -13,18 +13,18 @@
 </head>
 
 <body>
-     <!--component('menu2@0.0.1')-->
+     <!--load('menu2@0.0.1')-->
 <div class="bg">
     <div class="container">
         <div class="header">
-            <!--component('menu')-->
+            <!--load('menu')-->
         </div>
         <div class="main"></div>
         <div class="footer"></div>
     </div>
 </div>
 <div class="pop">
-    <!--component('reg')-->
+    <!--load('reg')-->
 </div>
 <script type="text/javascript" src="../static/lib/snailfwd.js"></script>
 __COMPONENTS_JS__

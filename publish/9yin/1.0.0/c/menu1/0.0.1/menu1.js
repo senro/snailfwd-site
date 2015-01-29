@@ -1,1 +1,0 @@
-define("menu1/0.0.1/menu1.js",function(e,n){e("jquery@1.10.2");n.name="hello i am menu1,haha"});

@@ -1,6 +1,6 @@
-<!--component('base@0.0.1')-->
+<!--load('base@0.0.1')-->
 .menu{
-    background: url(./navbg.png);
+    background: url(./navbg.jpg);
 }
 .menu-btn{}
 .menu-btn1{}

@@ -1,7 +1,4 @@
 .menu{
     background: url('./navbg.png');
 }
-.menu-btn{}
-.menu-btn1{}
-.menu-btn2{}
-.menu-btn3{}
+@import url(menuBtns.css?__inline);

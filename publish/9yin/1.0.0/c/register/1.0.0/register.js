@@ -1,1 +1,0 @@
-define("register/1.0.0/register.js",function(e,i){i.name="hello i am register,haha"});

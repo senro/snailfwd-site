@@ -13,17 +13,17 @@
 </head>
 
 <body>
-<!--component('menu3@0.0.1')-->
+<!--load('alice-nav@1.1.0')-->
 <div class="bg">
     <div class="container">
         <div class="header">
-            <!--component('menu1@0.0.1')-->
+            <!--load('menu1@0.0.1')-->
         </div>
         <div class="main"></div>
         <div class="footer"></div>
     </div>
 </div>
-<!--component('reg')-->
+<!--load('reg')-->
 <script type="text/javascript" src="../static/lib/snailfwd.js"></script>
 __COMPONENTS_JS__
 <script type="text/javascript" data-main='true' src="../static/index/index.js" ></script>

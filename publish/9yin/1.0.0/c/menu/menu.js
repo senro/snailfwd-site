@@ -1,1 +1,0 @@
-define("menu/menu.js",function(e,n,u){var m=e("jquery@1.10.2"),t=m(".menu").find("a").length;u.exports={length:t,name:"menu"}});
