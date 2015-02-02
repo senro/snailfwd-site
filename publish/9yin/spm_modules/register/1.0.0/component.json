@@ -1,8 +1,0 @@
-{
-    "name" : "register",
-    "main" : "register.js",
-    "version" : "1.0.0",
-    "scripts" : [
-        "register.js"
-    ]
-}

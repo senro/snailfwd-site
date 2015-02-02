@@ -1,8 +1,0 @@
-{
-    "name" : "menu2",
-    "version" : "0.0.1",
-    "scripts" : [
-        "menu2.css",
-        "menu2.html"
-    ]
-}

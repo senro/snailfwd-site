@@ -6,6 +6,14 @@ fis.config.set('release', '/'+fis.config.get('name')+'/');
 fis.config.set('releaseToInner', '/'+fis.config.get('name')+'/');
 fis.config.set('releaseToOuter', '/'+fis.config.get('name')+'/');
 
+fis.config.set('component.github','https://github.com/snail-team/');
+
+fis.config.merge({
+    roadmap : {
+        //所有静态资源文件都使用 http://s1.example.com 或者 http://s2.example.com 作为域名
+        domain : 'http://127.0.0.1:8080'
+    }
+});
 //使用snailfwd-parser-component插件解析views目录下的**.tpl文件，解析<!--component('xxx')-->
 // 或者<!--component("xxx@version")-->为一个组件的引用
 fis.config.merge({
@@ -90,7 +98,8 @@ fis.config.set('roadmap.path', [
         //static目录下的文件发布到【项目名/static/】目录下
         reg : /^\/static\/(.*)$/,
         release : fis.config.get('release')+'static/$1',
-        isComponents : false
+        isComponents : false,
+        useOptimizer : false
     },
 //    {
 //        //md后缀的文件不发布
@@ -283,8 +292,10 @@ var bulidSnailfwd = function(ret, conf, settings, opt){
 //            }
 //        }
 //    });
-    //找到组件的json文件，解析后存在组件的packageJson里,存在componentsMap相应组件的入口类型里
-    //然后根据spm.main的值文件类型，把值存入相应的组件里
+    /*
+    * 2-1.循环找到所有组件的json文件，然后根据spm.main的值文件类型，把值存入相应的组件的相应属性里，并且要转换为相对于
+    * 根目录的绝对路径(即最开始没有/)。
+    * */
     fis.util.map(ret.src, function(subpath, file){
         //添加判断，只有components和spm_modules目录下的文件才需要解析
         if(file.isComponents || file.isSpmModules ){
@@ -334,14 +345,10 @@ var bulidSnailfwd = function(ret, conf, settings, opt){
         }
     });
     /*
-     * 通过找到spm_modules里组件的package.json里的spm.main属性，去确定该组件的入口文件
-     * 如果spm.main的值为**.js，则确定该组件主js是该**.js，则不再去查找该文件夹里的组件名.js了，但是要把该组件所有依赖找到
-     * 如果spm.main的值为**.css，则确定该组件主css是该**.css，则不再去查找该文件夹里的组件名.css了
-     * 同时查找该文件里是否有名为index或者该组件名的文件存在
-     * 如果有index.html或者组件名.html，则认为该文件是组件的入口html
-     * 如果有index.init.js或者组件名.init.js，则认为该文件是组件的入口init
-     * 如果spm.main的值为**.js，则继续查找是否有index.css或者组件名.css,有则认为该文件为组件的入口css
-     * 如果spm.main的值为**.css，则继续查找是否有index.js或者组件名.js,有则认为该文件为组件的入口js，并找到该入口js的所有依赖
+     *2-2.循环所有组件，把index或组件名.html加入到该组件的html属性里，把index.init.js或组件名.init.js加入到init属性里，
+     * 如果该组件的css属性为空，说明它的spm.main不是css文件，把index.css或组件名.css加入到css属性里，如果该组件的js为空，
+     * 说明它的spm.main不是js文件，把index.js或组件名.js加入到js属性里，最后再去寻找该组件入口js的内部本地依赖，如果有则
+     * 加入到组件的js属性里。
      * */
     fis.util.map(ret.src, function(subpath, file){
         //添加判断，只有components和spm_modules目录下的文件才需要解析
@@ -429,7 +436,7 @@ var bulidSnailfwd = function(ret, conf, settings, opt){
     }
 
      /*
-    * 4.建立一个tpl模板模块依赖表templateDepsMap对象，记录每个tpl模板用到的所有不重复模块资源地址，和初始化调用的记录。
+    * 4.建立一个tpl模板模块依赖表templateDepsMap对象，记录每个tpl模板用到的所有不重复模块资源地址包括mainjs里的资源，和初始化调用的记录。
      templateDepsMap={
      'views/a.tpl':{
      deps:['a','b@version'，‘a/aa.js’]
@@ -447,9 +454,8 @@ var bulidSnailfwd = function(ret, conf, settings, opt){
             }
             if(file.mainJs){
                 map.templateDeps[file.id].mainJs=file.mainJs;
-
+                //寻找mainjs里的依赖
                 for(var i=0;i<ret.src[file.mainJs].requires.length;i++){
-
                     map.templateDeps[file.id].deps.push(ret.src[file.mainJs].requires[i]);
                     map.templateDeps[file.id].deps=map.templateDeps[file.id].deps.concat(findDeps(ret.src[file.mainJs].requires[i]));
                 }
@@ -495,7 +501,8 @@ var bulidSnailfwd = function(ret, conf, settings, opt){
             }
         }
     }
-    console.log(stringObj(map));
+    //console.log(stringObj(map));
+    //console.log(fis.config);
     /*
     * 6.根据pkgMap找到每个模板对应的资源包，然后把所有引用样式写到/static/pkg/模板名_ components.css下，
     * 此处应留一个插件接口，可以对打包的组件css进行一些个性化处理和并校正样式里的相对路径资源引用为绝对路径，相对于tpl结构。
@@ -503,16 +510,29 @@ var bulidSnailfwd = function(ret, conf, settings, opt){
     * 的样式引用，替换__COMPONENTS_JS__为“/static/pkg/模板名_ components.js”的脚本引用，通过页面里带有data-main的脚本标签去
     * 寻找__COMPONENTS_INIT__标签，然后将其替换为所有模块的初始化代码，寻找__COMPONENTS_ALIAS__标签，然后将其替换为所有模块的别名对象。
     * */
+    var domain,root;
+    if(opt.domain&&fis.config.get('roadmap').domain){
+        domain=fis.config.get('roadmap').domain;
+    }
+    if(opt.dest=='preview'){
+        root = fis.project.getTempPath('www');
+        //console.log(root);
+    }else{
+        root=opt.dest;
+    }
     for(var templateName in map.templateDeps){
         var template=map.templateDeps[templateName],
             templateFileObj=ret.src['/'+templateName],
             templateFileName=parsePath(templateName).fileName;
+
+
         //设置js和css打包文件路径
-        template.pkg.css.path=fis.config.get('release')+'static/pkg/'+templateFileName+'_components.css';
-        template.pkg.js.path=fis.config.get('release')+'static/pkg/'+templateFileName+'_components.js';
+        template.pkg.css.path=domain||''+fis.config.get('release')+'static/pkg/'+templateFileName+'_components.css';
+        template.pkg.js.path=domain||''+fis.config.get('release')+'static/pkg/'+templateFileName+'_components.js';
         //写入打包文件到设置地址
-        fis.util.write(opt.dest+template.pkg.css.path, getFilesContents(template.css,[translateCssRelativePathToAbsolute]));
-        fis.util.write(opt.dest+template.pkg.js.path, getFilesContents(template.js));
+        fis.util.write(root+fis.config.get('release')+'static/pkg/'+templateFileName+'_components.css', getFilesContents(template.css,[translateCssRelativePathToAbsolute]));
+        fis.util.write(root+fis.config.get('release')+'static/pkg/'+templateFileName+'_components.js', getFilesContents(template.js));
+
 
         //替换模板里的组件标签为对应的html结构
         for(var i=0;i<template.deps.length;i++){
@@ -782,13 +802,13 @@ var bulidSnailfwd = function(ret, conf, settings, opt){
 
     //获取依赖数组，根据文件类型分成css和js，然后根据引用模板名进行分别打包，把css包插入到__COMPONENT_CSS__，把js包插入到__COMPONENT_JS__
 
-    var retStr = stringObj(ret);
-    var confStr = stringObj(conf);
-    var settingsStr = stringObj(settings);
+//    var retStr = stringObj(ret);
+//    var confStr = stringObj(conf);
+//    var settingsStr = stringObj(settings);
 
-    fis.util.write(fis.project.getProjectPath()+'/test/retStr.txt', retStr);
-    fis.util.write(fis.project.getProjectPath()+'/test/confStr.txt', confStr);
-    fis.util.write(fis.project.getProjectPath()+'/test/settingsStr.txt', settingsStr);
+//    fis.util.write(fis.project.getProjectPath()+'/test/retStr.txt', retStr);
+//    fis.util.write(fis.project.getProjectPath()+'/test/confStr.txt', confStr);
+//    fis.util.write(fis.project.getProjectPath()+'/test/settingsStr.txt', settingsStr);
 //    fs.writeFile('D:/senro/senro/git/company/snailfwd-site/test/optStr.txt', optStr, function (err) {
 //        console.log('optStr导出成功！');
 //    });

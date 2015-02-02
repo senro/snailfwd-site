@@ -1,7 +1,0 @@
-{
-    "name" : "base",
-    "version" : "0.0.1",
-    "scripts" : [
-        "base.css"
-    ]
-}

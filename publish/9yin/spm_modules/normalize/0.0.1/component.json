@@ -1,7 +1,0 @@
-{
-    "name" : "normalize",
-    "version" : "0.0.1",
-    "scripts" : [
-        "normalize.css"
-    ]
-}
