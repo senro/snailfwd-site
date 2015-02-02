@@ -527,8 +527,9 @@ var bulidSnailfwd = function(ret, conf, settings, opt){
 
 
         //设置js和css打包文件路径
-        template.pkg.css.path=domain||''+fis.config.get('release')+'static/pkg/'+templateFileName+'_components.css';
-        template.pkg.js.path=domain||''+fis.config.get('release')+'static/pkg/'+templateFileName+'_components.js';
+        template.pkg.css.path=(domain||'')+fis.config.get('release')+'static/pkg/'+templateFileName+'_components.css';
+        template.pkg.js.path=(domain||'')+fis.config.get('release')+'static/pkg/'+templateFileName+'_components.js';
+
         //写入打包文件到设置地址
         fis.util.write(root+fis.config.get('release')+'static/pkg/'+templateFileName+'_components.css', getFilesContents(template.css,[translateCssRelativePathToAbsolute]));
         fis.util.write(root+fis.config.get('release')+'static/pkg/'+templateFileName+'_components.js', getFilesContents(template.js));
