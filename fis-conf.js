@@ -522,6 +522,7 @@ var bulidSnailfwd = function(ret, conf, settings, opt){
     }else{
         root=opt.dest;
     }
+    console.log('begin tpl xunhuan!');
     for(var templateName in map.templateDeps){
         var template=map.templateDeps[templateName],
             templateFileObj=ret.src['/'+templateName],
@@ -531,7 +532,7 @@ var bulidSnailfwd = function(ret, conf, settings, opt){
         //设置js和css打包文件路径
         template.pkg.css.path=(domain||'')+fis.config.get('release')+'static/pkg/'+templateFileName+'_components.css';
         template.pkg.js.path=(domain||'')+fis.config.get('release')+'static/pkg/'+templateFileName+'_components.js';
-
+        console.log('ready to write pkg!');
         //写入打包文件到设置地址
         fis.util.write(root+fis.config.get('release')+'static/pkg/'+templateFileName+'_components.css', getFilesContents(template.css,[translateCssRelativePathToAbsolute]));
         fis.util.write(root+fis.config.get('release')+'static/pkg/'+templateFileName+'_components.js', getFilesContents(template.js));
