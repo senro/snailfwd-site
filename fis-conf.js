@@ -611,7 +611,7 @@ var bulidSnailfwd = function(ret, conf, settings, opt){
                 if(/\.js/.test(depName)){
                     deps=deps.concat(findDeps(depName));
                 }else{
-                    console.log('[findJsDeps]: '+depName+' isn\'t js , ignore it!');
+                    //console.log('[findJsDeps]: '+depName+' isn\'t js , ignore it!');
                 }
             }
         }else{
