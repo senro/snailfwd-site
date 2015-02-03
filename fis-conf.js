@@ -6,7 +6,7 @@ fis.config.set('release', '/'+fis.config.get('name')+'/');
 fis.config.set('releaseToInner', '/'+fis.config.get('name')+'/');
 fis.config.set('releaseToOuter', '/'+fis.config.get('name')+'/');
 
-fis.config.set('component.github','https://github.com/snail-team/');
+fis.config.set('snailGames.json','https://raw.githubusercontent.com/senro/snailfwd-data/master/snailGames.json');
 
 fis.config.merge({
     roadmap : {
@@ -515,8 +515,10 @@ var bulidSnailfwd = function(ret, conf, settings, opt){
         domain=fis.config.get('roadmap').domain;
     }
     if(opt.dest=='preview'){
+        //root = fis.util.realpath(process.cwd());
         root = fis.project.getTempPath('www');
         //console.log(root);
+        //console.log(fis.util.pathinfo(fis.util.realpath(process.cwd())));
     }else{
         root=opt.dest;
     }

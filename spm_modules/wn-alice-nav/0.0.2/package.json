@@ -1,12 +1,13 @@
 {
-    "name": "alice-nav",
-    "version": "1.1.0",
-    "description": "导航样式",
+    "name": "wn-alice-nav",
+    "version": "0.0.2",
+    "description": "蜗牛增强导航测试",
     "keywords": [
-        "导航"
+        "导航",
+	"蜗牛增强导航"
     ],
     "homepage": "http://aliceui.org/nav/",
-    "author": "popomore <sakura9515@gmail.com>",
+    "author": "senro<passtome@foxmail.com>",
     "repository": {
         "type": "git",
         "url": "https://github.com/aliceui/nav.git"
